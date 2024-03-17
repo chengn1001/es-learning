@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProfile name="dev">
+        <!-- Define your console appender -->
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+
+        <!-- Define Logstash appender -->
+        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+            <destination>localhost:5044</destination>
+            <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <timestamp>
+                        <timeZone>Asia/Shanghai</timeZone>
+                    </timestamp>
+                    <!--自定义日志输出格式-->
+                    <pattern>
+                        <pattern>
+                            {
+                            "project": "logutils-info",
+                            "service": "${APP_NAME:-}",
+                            "class": "%logger",
+                            "message": "[%X{sessionId}] [%X{traceId}] %class:%line %message",
+                            "thread": "%thread",
+                            "classLine":"%class:%line"
+                            }
+                        </pattern>
+                    </pattern>
+                </providers>
+            </encoder>
+        </appender>
+
+        <!-- Root logger configuration -->
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="LOGSTASH" />
+        </root>
+    </springProfile>
+</configuration>
